@@ -17,13 +17,15 @@ import { Roles } from '../auth/roles.decorator';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @UseGuards(JwtAuthGuard) // Authentication required
+  // Get all products
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard) // Authentication + Authorization (Admin only)
+  // Create product
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
   create(
@@ -33,14 +35,15 @@ export class ProductsController {
   }
 
   // Get single product
-  @UseGuards(JwtAuthGuard, RolesGuard) // Authentication + Authorization (Admin only)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'user')
   @Get(':id')
   getSingleProduct(@Param('id') id: string) {
     return this.productsService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard) // Authentication + Authorization (Admin only)
+  // Update product
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Put(':id')
   update(
@@ -50,7 +53,8 @@ export class ProductsController {
     return this.productsService.update(id, product);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard) // Authentication + Authorization (Admin only)
+  // Delete product
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string) {
