@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { JwtPayload } from '../interfaces/jwt/jwt-payload.interface';
-import { LoginRequest } from '../interfaces/user/login-request.interface';
+import { LoginDto } from '../dtos/user/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,12 +20,27 @@ export class AuthService {
     };
   }
 
-  async login(user: LoginRequest) {
-    const userObj = await this.usersService.findOne(user.username);
+  async login(user: LoginDto) {
+    const userObj = await this.usersService.findOne(user);
+
+    if (!userObj) {
+      throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
+    }
+
+    const isPasswordMatch = await bcrypt.compare(
+      user.password,
+      userObj.password,
+    );
+
+    if (!isPasswordMatch) {
+      throw new HttpException('Wrong password', HttpStatus.UNAUTHORIZED);
+    }
+
     const payload = {
       username: userObj.username,
       role: userObj.role,
     };
+
     return { access_token: this.jwtService.sign(payload) };
   }
 }

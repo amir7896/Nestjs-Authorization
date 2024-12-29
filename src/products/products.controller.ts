@@ -7,11 +7,13 @@ import {
   Body,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CreateProductDto, GetProductsDto } from '../dtos/product/product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -20,17 +22,15 @@ export class ProductsController {
   // Get all products
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() query: GetProductsDto) {
+    return this.productsService.findAll(query);
   }
 
   // Create product
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post()
-  create(
-    @Body() product: { name: string; description?: string; price: number },
-  ) {
+  create(@Body() product: CreateProductDto) {
     return this.productsService.create(product);
   }
 
@@ -39,17 +39,14 @@ export class ProductsController {
   @Roles('admin', 'user')
   @Get(':id')
   getSingleProduct(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+    return this.productsService.findOne({ id });
   }
 
   // Update product
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() product: { name: string; description?: string; price: number },
-  ) {
+  update(@Param('id') id: string, @Body() product: CreateProductDto) {
     return this.productsService.update(id, product);
   }
 
@@ -58,6 +55,6 @@ export class ProductsController {
   @Roles('admin')
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
+    return this.productsService.remove({ id });
   }
 }
