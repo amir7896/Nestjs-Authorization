@@ -19,7 +19,12 @@ export class CreateProductDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Type(() => Number) // Ensures price is transformed into a number
   price: number;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }
 
 export class GetProductsDto {
